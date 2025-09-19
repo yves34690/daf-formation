@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Générateur d'icônes DAF</title>
+</head>
+<body>
+    <h1>Générateur d'icônes pour l'app Formation DAF</h1>
+    <div id="icons-container"></div>
+
+    <script>
+        // Fonction pour créer une icône
+        function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Arrière-plan bleu
+            ctx.fillStyle = '#2563eb';
+            ctx.fillRect(0, 0, size, size);
+
+            // Texte DAF
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size/4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('DAF', size/2, size/2);
+
+            // Petit sous-titre
+            ctx.font = `${size/8}px Arial`;
+            ctx.fillText('Formation', size/2, size/2 + size/5);
+
+            return canvas;
+        }
+
+        // Générer toutes les tailles
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const container = document.getElementById('icons-container');
+
+        sizes.forEach(size => {
+            const canvas = createIcon(size);
+            const div = document.createElement('div');
+            div.style.margin = '10px';
+            div.innerHTML = `<h3>Icon ${size}x${size}</h3>`;
+            div.appendChild(canvas);
+
+            // Lien de téléchargement
+            const link = document.createElement('a');
+            link.download = `icon-${size}x${size}.png`;
+            link.href = canvas.toDataURL();
+            link.textContent = `Télécharger icon-${size}x${size}.png`;
+            link.style.display = 'block';
+            div.appendChild(link);
+
+            container.appendChild(div);
+        });
+    </script>
+</body>
+</html>

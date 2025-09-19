@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="#2563eb" rx="64"/>
+  <text x="256" y="192" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="128" font-weight="bold">DAF</text>
+  <text x="256" y="341.3333333333333" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="64">Formation</text>
+</svg>

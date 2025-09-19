@@ -1,0 +1,5 @@
+{
+  "name": "DAF Business Game Simulator",
+  "description": "An interactive business game designed for students to simulate a negotiation scenario between an IT solutions provider and a company's Chief Financial Officer (DAF). Students will develop SPIN questionnaires, draft commercial proposals, and create specification documents.",
+  "requestFramePermissions": []
+}
