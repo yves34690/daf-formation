@@ -1,4 +1,6 @@
+import React from 'react';
 import type { Scenario } from './types';
+import GlossaryTerm from './components/Glossary/GlossaryTerm';
 
 export const PROPOSAL_TEMPLATE = `[Logo de votre entreprise]
 
@@ -69,7 +71,11 @@ export const SCENARIOS: Scenario[] = [
     sme: {
       name: 'InnovTech SaaS',
       industry: 'Éditeur de logiciel B2B',
-      description: "Une PME de 50 employés qui développe un logiciel de gestion de projet. Le support client est un élément clé de leur offre mais a du mal à suivre la croissance.",
+      description: (
+        <>
+          Une <GlossaryTerm term="PME">PME</GlossaryTerm> de 50 employés qui développe un logiciel de gestion de projet. Le support client est un élément clé de leur offre mais a du mal à suivre la croissance.
+        </>
+      ),
       challenges: [
         'Le temps de première réponse aux tickets est trop long.',
         'Les agents passent plus de la moitié de leur temps sur des questions basiques.',
@@ -92,7 +98,11 @@ export const SCENARIOS: Scenario[] = [
     sme: {
       name: 'BioSaveurs Distribution',
       industry: 'Distribution de produits biologiques',
-      description: "Une entreprise de 80 personnes avec plusieurs entrepôts et une force de vente nomade. L'écosystème Microsoft 365 est en place mais sous-utilisé.",
+      description: (
+        <>
+          Une entreprise de 80 personnes avec plusieurs entrepôts et une force de vente nomade. L'écosystème Microsoft 365 est en place mais sous-utilisé.
+        </>
+      ),
       challenges: [
         "L'information cruciale partagée dans Teams se perd dans les canaux.",
         'Les documents importants sur SharePoint sont mal organisés et difficiles à trouver.',
@@ -105,7 +115,11 @@ export const SCENARIOS: Scenario[] = [
     company: {
       name: 'Pennylane',
       logo: 'pennylane',
-      product: 'Plateforme de gestion financière et comptable tout-en-un pour PME, synchronisée avec votre expert-comptable.',
+      product: (
+        <>
+          Plateforme de gestion financière et comptable tout-en-un pour <GlossaryTerm term="PME">PME</GlossaryTerm>, synchronisée avec votre expert-comptable.
+        </>
+      ),
       situation: "Gestion éclatée : facturation sur un outil, notes de frais sur Excel, comptabilité chez l'expert-comptable.",
       problem: "Aucune vision temps réel de la trésorerie. Collecte manuelle des factures fournisseurs chronophage et source d'erreurs.",
       implication: "Décisions basées sur des données obsolètes, risques d'impayés, clôtures mensuelles de 3 jours.",
@@ -115,7 +129,11 @@ export const SCENARIOS: Scenario[] = [
     sme: {
       name: 'Construct Bat SARL',
       industry: 'Bâtiment et rénovation',
-      description: 'Une PME du BTP de 65 employés qui gère de multiples chantiers. Le DAF passe son temps à courir après les factures et à consolider des fichiers Excel.',
+      description: (
+        <>
+          Une <GlossaryTerm term="PME">PME</GlossaryTerm> du BTP de 65 employés qui gère de multiples chantiers. Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> passe son temps à courir après les factures et à consolider des fichiers Excel.
+        </>
+      ),
       challenges: [
         'Manque de visibilité sur la rentabilité par chantier.',
         'Le suivi des paiements fournisseurs et des encaissements clients est complexe.',
@@ -131,14 +149,22 @@ export const SCENARIOS: Scenario[] = [
       product: 'Solution de paie et RH automatisée réduisant de 90% le temps de traitement avec portail self-service employés.',
       situation: "Paie externalisée mais collecte manuelle des variables (heures, absences, primes) source d'erreurs récurrentes.",
       problem: "Erreurs fréquentes sur les bulletins, pas d'autonomie RH pour les employés, processus papier pour les congés.",
-      implication: "Réclamations constantes, charge administrative élevée pour le DAF, risque de redressement URSSAF.",
+      implication: (
+        <>
+          Réclamations constantes, charge administrative élevée pour le <GlossaryTerm term="DAF">DAF</GlossaryTerm>, risque de redressement URSSAF.
+        </>
+      ),
       necessity: "Digitaliser et automatiser la paie de A à Z avec self-service employés pour gagner 300€/mois et 90% de temps.",
       price: '26€ / mois / utilisateur',
     },
     sme: {
       name: 'Gourmet Express',
       industry: 'Restauration rapide de qualité',
-      description: "Une chaîne de 4 restaurants avec 45 employés, dont beaucoup à temps partiel avec des horaires variables. La gestion RH est un casse-tête mensuel pour le DAF.",
+      description: (
+        <>
+          Une chaîne de 4 restaurants avec 45 employés, dont beaucoup à temps partiel avec des horaires variables. La gestion RH est un casse-tête mensuel pour le <GlossaryTerm term="DAF">DAF</GlossaryTerm>.
+        </>
+      ),
       challenges: [
         "La collecte et le calcul des heures variables pour la paie sont une source d'erreurs.",
         'La gestion des congés et absences est faite sur papier, ce qui complique la planification.',
@@ -152,20 +178,36 @@ export const SCENARIOS: Scenario[] = [
       name: 'Finthesis',
       logo: 'finthesis',
       product: "Plateforme BI financière transformant les données comptables brutes en tableaux de bord visuels et analyses prédictives.",
-      situation: 'Le DAF passe 3 jours/mois à consolider des exports comptables dans Excel pour créer des reportings statiques.',
+      situation: (
+        <>
+          Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> passe 3 jours/mois à consolider des exports comptables dans Excel pour créer des reportings statiques.
+        </>
+      ),
       problem: "Reportings figés, impossibilité de faire des simulations, erreurs de formules Excel, pas d'analyse prédictive.",
-      implication: 'Le CODIR manque de visibilité pour décider rapidement. Le DAF est un producteur de chiffres, pas un business partner stratégique.',
+      implication: (
+        <>
+          Le CODIR manque de visibilité pour décider rapidement. Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> est un producteur de chiffres, pas un business partner stratégique.
+        </>
+      ),
       necessity: "Automatiser la production de reportings dynamiques pour libérer du temps d'analyse et de conseil stratégique.",
       price: '9€ / mois / utilisateur',
     },
     sme: {
       name: 'InnovSoft Éditions',
       industry: 'Éditeur de logiciels SaaS',
-      description: 'Start-up de 30 personnes avec un modèle de revenus par abonnement (MRR). Le DAF passe des jours à consolider les données dans Excel pour le reporting mensuel.',
+      description: (
+        <>
+          Start-up de 30 personnes avec un modèle de revenus par abonnement (MRR). Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> passe des jours à consolider les données dans Excel pour le reporting mensuel.
+        </>
+      ),
       challenges: [
-        'Le suivi des KPIs SaaS (MRR, Churn, LTV) est entièrement manuel.',
+        (<>
+          Le suivi des <GlossaryTerm term="KPI">KPIs</GlossaryTerm> <GlossaryTerm term="SAAS">SaaS</GlossaryTerm> (MRR, Churn, LTV) est entièrement manuel.
+        </>),
         'La création de prévisions de trésorerie fiables est complexe et peu fiable sur Excel.',
-        "Le DAF est sceptique sur les outils 'plug-and-play' et pense qu'Excel lui donne plus de contrôle.",
+        (<>
+          Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> est sceptique sur les outils 'plug-and-play' et pense qu'Excel lui donne plus de contrôle.
+        </>),
       ],
     },
   },
@@ -175,7 +217,11 @@ export const SCENARIOS: Scenario[] = [
       name: 'Capgemini',
       logo: 'Capgemini',
       product: "Services de transformation digitale et IA : conseil stratégique, intégration Cloud, Cybersécurité, Data & Analytics.",
-      situation: "Données éparpillées dans multiples systèmes (ERP, CRM, Excel) qui ne communiquent pas. Pas de vision 360° du business.",
+      situation: (
+        <>
+          Données éparpillées dans multiples systèmes (<GlossaryTerm term="ERP">ERP</GlossaryTerm>, <GlossaryTerm term="CRM">CRM</GlossaryTerm>, Excel) qui ne communiquent pas. Pas de vision 360° du business.
+        </>
+      ),
       problem: "Décisions prises à l'instinct faute de données fiables. Incapacité à faire du prédictif ou de l'analyse avancée.",
       implication: "Perte de compétitivité, opportunités commerciales manquées, inefficacité opérationnelle, retard sur la concurrence.",
       necessity: "Définir et implémenter une stratégie data complète avec plateforme BI moderne et accompagnement au changement.",
@@ -186,7 +232,9 @@ export const SCENARIOS: Scenario[] = [
       industry: "Fabrication d'équipements industriels",
       description: "Une ETI de 250 employés avec une forte culture d'ingénieur. Les données sont vues comme une contrainte technique, pas comme un atout stratégique.",
       challenges: [
-        'Les données de production (ERP) et de vente (CRM) sont totalement séparées.',
+        (<>
+          Les données de production (<GlossaryTerm term="ERP">ERP</GlossaryTerm>) et de vente (<GlossaryTerm term="CRM">CRM</GlossaryTerm>) sont totalement séparées.
+        </>),
         'Le reporting est basique et ne permet pas de faire du prédictif (ex: maintenance prédictive).',
         "Manque de compétences internes pour lancer un projet data d'envergure.",
       ],

@@ -8,8 +8,12 @@ import {
   Award,
   ChevronRight,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Brain,
+  GamepadIcon
 } from 'lucide-react';
+import GlossaryTerm from '../../Glossary/GlossaryTerm';
+import QuizWorkshop from '../../Workshops/QuizWorkshop';
 
 interface Chapter1Props {
   onComplete: () => void;
@@ -19,6 +23,8 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
   const [activeSection, setActiveSection] = useState(0);
   const [completedSections, setCompletedSections] = useState<number[]>([]);
   const [quizAnswers, setQuizAnswers] = useState<Record<number, string>>({});
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [showWorkshop, setShowWorkshop] = useState(false);
 
   const sections = [
     { id: 0, title: "Présentation de la fonction", duration: 15 },
@@ -35,21 +41,27 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
     if (activeSection < sections.length - 1) {
       setActiveSection(activeSection + 1);
     } else if (completedSections.length === sections.length - 1) {
-      onComplete();
+      // Toutes les sections sont terminées, montrer l'atelier
+      setShowWorkshop(true);
     }
+  };
+
+  const handleWorkshopComplete = () => {
+    setShowWorkshop(false);
+    onComplete();
   };
 
   const pillars = [
     {
       icon: Calculator,
       color: 'blue',
-      title: 'Comptabilité & Trésorerie',
+      title: (<><GlossaryTerm term="COMPTABILITE">Comptabilité</GlossaryTerm> & <GlossaryTerm term="TRESORERIE">Trésorerie</GlossaryTerm></>),
       subtitle: 'Supervision comptable, gestion des flux et optimisation financière',
       items: [
         'Arrêtés comptables mensuels',
         'Traitement et vision consolidé',
         'Relation avec l\'expert comptable et le CAC',
-        'Gestion de trésorerie',
+        (<>Gestion de <GlossaryTerm term="TRESORERIE">trésorerie</GlossaryTerm></>),
         'Mise en place et suivi du plan de trésorerie',
         'Relations bancaires'
       ]
@@ -58,7 +70,7 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
       icon: Shield,
       color: 'green',
       title: 'Fonctions administratives',
-      subtitle: 'Le DAF est le garant de la conformité règlementaire',
+      subtitle: (<>Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> est le garant de la conformité règlementaire</>),
       items: [
         'RH : Mise en place et suivi des processus RH individuels et collectifs',
         'Juridique : Traitement et suivi des contentieux, relation avec les avocats',
@@ -70,16 +82,16 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
     {
       icon: TrendingUp,
       color: 'purple',
-      title: 'Contrôle de gestion & Analyse',
+      title: (<><GlossaryTerm term="CONTROLE_GESTION">Contrôle de gestion</GlossaryTerm> & Analyse</>),
       subtitle: 'Pilotage de la performance, budgets et BI',
       items: [
         'Élaboration budgets prévisionnels',
         'Suivi écarts budget/réalisé',
         'Analyses de rentabilité',
-        'Reporting de performance',
+        (<><GlossaryTerm term="REPORTING">Reporting</GlossaryTerm> de <GlossaryTerm term="PERFORMANCE">performance</GlossaryTerm></>),
         'Dashboards interactifs',
         'Analyses prédictives',
-        'Business plans',
+        (<><GlossaryTerm term="BUSINESS_PLAN">Business plans</GlossaryTerm></>),
         'Évaluations d\'investissements',
         'Visualisations avancées'
       ]
@@ -87,10 +99,10 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
     {
       icon: Users,
       color: 'orange',
-      title: 'Performance économique',
-      subtitle: 'Le DAF un véritable business partners',
+      title: (<><GlossaryTerm term="PERFORMANCE">Performance</GlossaryTerm> économique</>),
+      subtitle: (<>Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> un véritable business partners</>),
       items: [
-        'Le DAF est le bras droit de la direction',
+        (<>Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> est le bras droit de la direction</>),
         'Qualité de management',
         'Capacité de représentation',
         'Vision collective des enjeux et conseil stratégique',
@@ -105,12 +117,12 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
     { name: 'Vision stratégique', desc: 'Compréhension des enjeux business globaux' },
     { name: 'Communication', desc: 'Vulgarisation des concepts financiers complexes' },
     { name: 'Adaptabilité', desc: 'Évolution avec les outils et réglementations' },
-    { name: 'Leadership', desc: 'Management d\'équipes pluridisciplinaires' },
+    { name: 'Leadership', desc: (<><GlossaryTerm term="MANAGEMENT">Management</GlossaryTerm> d'équipes pluridisciplinaires</>) },
     { name: 'Négociation', desc: 'Relations avec partenaires financiers et institutionnels' }
   ];
 
   const constraints = [
-    { name: 'Fiabilité', desc: 'Contrôle interne, audit, conformité, transparence, traçabilité, exactitude' },
+    { name: 'Fiabilité', desc: (<>Contrôle interne, <GlossaryTerm term="AUDIT">audit</GlossaryTerm>, conformité, transparence, traçabilité, exactitude</>) },
     { name: 'Gestion des risques', desc: 'Cartographie des risques, surveillance, procédure et organisation, gouvernance' },
     { name: 'Anticipation des besoins', desc: 'Prévisionnel, plan de trésorerie prospective métier partagée avec la direction, planification stratégique' },
     { name: 'Gestion des équipes', desc: 'Leadership, coordination, formation & développement des compétences, délégation, motivation' },
@@ -124,7 +136,7 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
           Chapitre 1 : Les représentations du métier
         </h1>
         <p className="text-slate-600">
-          Découvrez les missions principales, les enjeux et les compétences nécessaires au métier de DAF
+          Découvrez les missions principales, les enjeux et les compétences nécessaires au métier de <GlossaryTerm term="DAF">DAF</GlossaryTerm>
         </p>
       </div>
 
@@ -160,14 +172,14 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
                 Présentation de la fonction et des principales missions
               </h2>
               <p className="text-slate-600 mb-6 text-lg">
-                Le DAF assure la gestion financière globale en pilotant la <span className="text-red-600 font-semibold">trésorerie</span>,
-                les <span className="text-red-600 font-semibold">budgets</span> et la <span className="text-red-600 font-semibold">comptabilité</span>,
+                Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> assure la gestion financière globale en pilotant la <span className="text-red-600 font-semibold"><GlossaryTerm term="TRESORERIE">trésorerie</GlossaryTerm></span>,
+                les <span className="text-red-600 font-semibold"><GlossaryTerm term="BUDGET">budgets</GlossaryTerm></span> et la <span className="text-red-600 font-semibold"><GlossaryTerm term="COMPTABILITE">comptabilité</GlossaryTerm></span>,
                 tout en supervisant les <span className="text-red-600 font-semibold">fonctions administratives (RH, juridique, fiscal)</span> et
                 en <span className="text-red-600 font-semibold">conseillant la direction</span> sur les décisions stratégiques.
                 Il garantit la <span className="text-red-600 font-semibold">conformité réglementaire</span>,
                 <span className="text-red-600 font-semibold">analyse la performance économique</span> et élabore
                 les <span className="text-red-600 font-semibold">prévisions financières</span> pour sécuriser la croissance et la rentabilité de l'entreprise.
-                Véritable <span className="text-red-600 font-semibold">bras droit du dirigeant</span>, il porte plusieurs casquettes dans une PME, allant du contrôle de gestion à la gestion des risques financier.
+                Véritable <span className="text-red-600 font-semibold">bras droit du dirigeant</span>, il porte plusieurs casquettes dans une <GlossaryTerm term="PME">PME</GlossaryTerm>, allant du <GlossaryTerm term="CONTROLE_GESTION">contrôle de gestion</GlossaryTerm> à la gestion des risques financier.
               </p>
             </div>
 
@@ -206,10 +218,10 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
               Les objectifs et les enjeux principaux de la fonction
             </h2>
             <p className="text-slate-600 mb-8">
-              Les priorités des DAF pour les années à venir concernent l'amélioration du pilotage de la performance,
+              Les priorités des <GlossaryTerm term="DAF">DAF</GlossaryTerm> pour les années à venir concernent l'amélioration du pilotage de la performance,
               la gestion du cash et des investissements, l'évolution vers un rôle de business partner stratégique et
-              la gestion des talents. Dans un environnement incertain, le DAF devient garant de la résilience et doit
-              intégrer des éléments extra-financiers (RSE ou indicateurs ESG : CA {'>'} 150M€) dans les modèles de performance.
+              la gestion des talents. Dans un environnement incertain, le <GlossaryTerm term="DAF">DAF</GlossaryTerm> devient garant de la résilience et doit
+              intégrer des éléments extra-financiers (<GlossaryTerm term="RSE">RSE</GlossaryTerm> ou indicateurs ESG : CA {'>'} 150M€) dans les modèles de performance.
             </p>
 
             <div className="grid md:grid-cols-3 gap-6">
@@ -221,8 +233,8 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
                 <ul className="space-y-2">
                   <li className="text-red-800">- Respect des normes comptables</li>
                   <li className="text-red-800">- Obligations fiscales</li>
-                  <li className="text-red-800">- Audit et contrôles</li>
-                  <li className="text-red-800">- Reporting réglementaire</li>
+                  <li className="text-red-800">- <GlossaryTerm term="AUDIT">Audit</GlossaryTerm> et contrôles</li>
+                  <li className="text-red-800">- <GlossaryTerm term="REPORTING">Reporting</GlossaryTerm> réglementaire</li>
                 </ul>
               </div>
 
@@ -230,12 +242,12 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
                 <div className="w-16 h-16 bg-orange-200 rounded-full flex items-center justify-center mb-4">
                   <TrendingUp className="w-8 h-8 text-orange-600" />
                 </div>
-                <h3 className="text-xl font-bold text-orange-900 mb-3">Performance</h3>
+                <h3 className="text-xl font-bold text-orange-900 mb-3"><GlossaryTerm term="PERFORMANCE">Performance</GlossaryTerm></h3>
                 <ul className="space-y-2">
                   <li className="text-orange-800">- Optimisation de la rentabilité</li>
                   <li className="text-orange-800">- Maîtrise des coûts</li>
                   <li className="text-orange-800">- Amélioration du BFR</li>
-                  <li className="text-orange-800">- ROI des investissements</li>
+                  <li className="text-orange-800">- <GlossaryTerm term="ROI">ROI</GlossaryTerm> des investissements</li>
                   <li className="text-orange-800">- Aide à la décision stratégique</li>
                   <li className="text-orange-800">- Fiabilisation des budgets</li>
                 </ul>
@@ -249,7 +261,7 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
                 <ul className="space-y-2">
                   <li className="text-purple-800">- Digitalisation des processus</li>
                   <li className="text-purple-800">- Automatisation</li>
-                  <li className="text-purple-800">- Business Intelligence</li>
+                  <li className="text-purple-800">- <GlossaryTerm term="BI">Business Intelligence</GlossaryTerm></li>
                   <li className="text-purple-800">- Conduite du changement</li>
                 </ul>
               </div>
@@ -264,7 +276,7 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
             </h2>
             <p className="text-slate-600 mb-8">
               Le métier requiert rigueur, sens de l'organisation, capacité à diriger des équipes et à communiquer
-              avec des parties prenantes variées. Le DAF doit posséder une forte maîtrise technique (comptabilité,
+              avec des parties prenantes variées. Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> doit posséder une forte maîtrise technique (<GlossaryTerm term="COMPTABILITE">comptabilité</GlossaryTerm>,
               fiscalité, finance) et des compétences relationnelles pour négocier avec les partenaires extérieurs
               et soutenir la direction dans la prise de décision stratégique.
             </p>
@@ -288,7 +300,7 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
             </h2>
             <p className="text-slate-600 mb-8">
               Outre la complexité règlementaire et l'exigence de <strong>fiabilité</strong> des informations financières,
-              le DAF doit <strong>gérer les risques</strong>, <strong>anticiper les besoins</strong> de trésorerie et
+              le <GlossaryTerm term="DAF">DAF</GlossaryTerm> doit <strong>gérer les risques</strong>, <strong>anticiper les besoins</strong> de <GlossaryTerm term="TRESORERIE">trésorerie</GlossaryTerm> et
               assurer la conformité juridique. La pression des délais (clôtures, déclarations fiscales, obligations
               réglementaires) et la <strong>gestion des équipes</strong> constituent des défis au quotidien.
               L'évolution rapide des <strong>technologies</strong> et des normes requiert une veille constante.
@@ -316,34 +328,34 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
               Les évolutions du métier
             </h2>
             <p className="text-slate-600 mb-8">
-              La fonction DAF évolue vers davantage de pilotage stratégique et d'aide à la décision. La digitalisation croissante (solutions EPM, Power BI),
-              l'intégration des critères RSE et l'essor de l'analyse prédictive transforment la manière de travailler. Le DAF devient un « Chief Value Officer » qui
+              La fonction <GlossaryTerm term="DAF">DAF</GlossaryTerm> évolue vers davantage de pilotage stratégique et d'aide à la décision. La digitalisation croissante (solutions EPM, Power BI),
+              l'intégration des critères <GlossaryTerm term="RSE">RSE</GlossaryTerm> et l'essor de l'analyse prédictive transforment la manière de travailler. Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> devient un « Chief Value Officer » qui
               crée de la valeur en combinant expertise financière et vision extra-financière.
             </p>
 
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-6 border-l-4 border-red-400">
-                <h3 className="text-xl font-bold text-red-900 mb-3">Années 2000 : Le DAF "Gardien du temple"</h3>
+                <h3 className="text-xl font-bold text-red-900 mb-3">Années 2000 : Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> "Gardien du temple"</h3>
                 <p className="text-red-800">
-                  Forte dominance de la comptabilité et de la production de rapports réglementaires. Le DAF est avant tout
+                  Forte dominance de la <GlossaryTerm term="COMPTABILITE">comptabilité</GlossaryTerm> et de la production de rapports réglementaires. Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> est avant tout
                   le garant de la fiabilité des chiffres.
                 </p>
               </div>
 
               <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-6 border-l-4 border-orange-400">
-                <h3 className="text-xl font-bold text-orange-900 mb-3">Années 2010 : Le DAF "Business Partner"</h3>
+                <h3 className="text-xl font-bold text-orange-900 mb-3">Années 2010 : Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> "Business Partner"</h3>
                 <p className="text-orange-800">
-                  Montée en puissance du contrôle de gestion. Le DAF devient un partenaire des autres directions (pour les
-                  grands comptes) et de la direction pour la PME afin d'optimiser les budgets et la performance
+                  Montée en puissance du <GlossaryTerm term="CONTROLE_GESTION">contrôle de gestion</GlossaryTerm>. Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> devient un partenaire des autres directions (pour les
+                  grands comptes) et de la direction pour la <GlossaryTerm term="PME">PME</GlossaryTerm> afin d'optimiser les <GlossaryTerm term="BUDGET">budgets</GlossaryTerm> et la <GlossaryTerm term="PERFORMANCE">performance</GlossaryTerm>
                   opérationnelle.
                 </p>
               </div>
 
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border-l-4 border-blue-400">
-                <h3 className="text-xl font-bold text-blue-900 mb-3">Aujourd'hui : Le DAF "Stratège de la Donnée"</h3>
+                <h3 className="text-xl font-bold text-blue-900 mb-3">Aujourd'hui : Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> "Stratège de la Donnée"</h3>
                 <p className="text-blue-800">
                   La digitalisation transforme la fonction. L'expertise en analyse de données (<strong>Power BI</strong>), en modélisation
-                  financière et en prospective devient cruciale. Le DAF est un acteur clé des décisions stratégiques long-terme.
+                  financière et en prospective devient cruciale. Le <GlossaryTerm term="DAF">DAF</GlossaryTerm> est un acteur clé des décisions stratégiques long-terme.
                 </p>
               </div>
             </div>
@@ -352,7 +364,7 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
               <h4 className="text-lg font-bold text-purple-900 mb-3">La réalité du métier</h4>
               <div className="bg-white/70 rounded-lg p-4">
                 <p className="text-purple-800 italic">
-                  "Plus qu'un métier, une évolution. Mon parcours illustre parfaitement l'évolution du métier de DAF ces 20 dernières années.
+                  "Plus qu'un métier, une évolution. Mon parcours illustre parfaitement l'évolution du métier de <GlossaryTerm term="DAF">DAF</GlossaryTerm> ces 20 dernières années.
                   J'ai vécu la transformation de l'intérieur : de la comptabilité pure au business partnering,
                   de Excel à Power BI, de l'analyse historique à la modélisation prédictive."
                 </p>
@@ -383,11 +395,70 @@ const Chapter1Representations: React.FC<Chapter1Props> = ({ onComplete }) => {
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
           >
             {activeSection === sections.length - 1 && completedSections.length === sections.length - 1
-              ? 'Terminer le chapitre'
+              ? 'Passer à l\'atelier pratique'
               : 'Section suivante'}
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Atelier Quiz - affiché après toutes les sections */}
+        {showWorkshop && (
+          <div className="mt-8 pt-8 border-t">
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 mb-6 border border-purple-200">
+              <div className="text-center mb-6">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                    <Brain className="w-8 h-8 text-purple-600" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                  🎯 Atelier pratique : Quiz interactif
+                </h3>
+                <p className="text-slate-600 mb-4">
+                  Maintenant que vous avez découvert les représentations du métier de <GlossaryTerm term="DAF">DAF</GlossaryTerm>,
+                  testez vos connaissances avec notre quiz interactif !
+                </p>
+                <p className="text-sm text-purple-600 font-semibold">
+                  ✨ 15 questions • Feedback immédiat • Badge de réussite
+                </p>
+              </div>
+
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => setShowQuiz(true)}
+                  className="flex items-center gap-2 px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold shadow-lg"
+                >
+                  <GamepadIcon className="w-5 h-5" />
+                  Commencer le quiz
+                </button>
+                <button
+                  onClick={handleWorkshopComplete}
+                  className="px-6 py-3 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-semibold"
+                >
+                  Passer l'atelier
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quiz Modal */}
+        {showQuiz && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
+              <QuizWorkshop
+                onComplete={() => {
+                  setShowQuiz(false);
+                  handleWorkshopComplete();
+                }}
+                onClose={() => {
+                  setShowQuiz(false);
+                  setShowWorkshop(true);
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

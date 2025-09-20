@@ -6,16 +6,21 @@ import GameView from './components/GameView';
 import VotingView from './components/VotingView';
 import NavigationHub from './components/SharedComponents/NavigationHub';
 import CourseView from './components/CourseMode/CourseView';
+import WorkshopsView from './components/WorkshopsView';
 import GlobalTimer from './components/Timer/GlobalTimer';
 import { TimerProvider, useTimer } from './components/Timer/TimerContext';
-import { Users, Vote, Maximize2, Minimize2, Home } from 'lucide-react';
+import { GlossaryProvider, useGlossary } from './contexts/GlossaryContext';
+import GlossaryPanel from './components/Glossary/GlossaryPanel';
+import GlossaryTerm from './components/Glossary/GlossaryTerm';
+import { Users, Vote, Maximize2, Minimize2, Home, BookOpen } from 'lucide-react';
 
 const AppContent: React.FC = () => {
-  const [view, setView] = useState<'hub' | 'course' | 'selection' | 'game' | 'voting'>('hub');
+  const [view, setView] = useState<'hub' | 'course' | 'selection' | 'game' | 'voting' | 'workshops'>('hub');
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const { startTimer, mode } = useTimer();
+  const { toggleGlossary } = useGlossary();
 
   const [deliverables, setDeliverables] = useState<Record<number, DeliverableContent>>(() =>
     SCENARIOS.reduce((acc, scenario) => {
@@ -59,6 +64,10 @@ const AppContent: React.FC = () => {
   const handleBackToHub = useCallback(() => {
     setView('hub');
     setSelectedScenario(null);
+  }, []);
+
+  const handleShowWorkshops = useCallback(() => {
+    setView('workshops');
   }, []);
 
   const handleBackToSelection = useCallback(() => {
@@ -117,9 +126,11 @@ const AppContent: React.FC = () => {
   const renderContent = () => {
     switch (view) {
       case 'hub':
-        return <NavigationHub onSelectMode={handleModeSelect} />;
+        return <NavigationHub onSelectMode={handleModeSelect} onShowWorkshops={handleShowWorkshops} />;
       case 'course':
         return <CourseView onComplete={handleCourseComplete} />;
+      case 'workshops':
+        return <WorkshopsView onBack={handleBackToHub} />;
       case 'selection':
         return <TeamSelection scenarios={SCENARIOS} onSelect={handleScenarioSelect} />;
       case 'game':
@@ -139,7 +150,7 @@ const AppContent: React.FC = () => {
     }
   };
 
-  if (view === 'hub') {
+  if (view === 'hub' || view === 'workshops') {
     return (
       <div className="min-h-screen">
         {renderContent()}
@@ -156,7 +167,7 @@ const AppContent: React.FC = () => {
         <div className="container mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3 sm:py-4">
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900">
-              <span className="text-blue-600">DAF</span> {mode === 'morning' ? 'Formation' : 'Business Game'}
+              <span className="text-blue-600"><GlossaryTerm term="DAF">DAF</GlossaryTerm></span> {mode === 'morning' ? 'Formation' : 'Business Game'}
             </h1>
             <div className="flex items-center gap-2 sm:gap-4">
               <button
@@ -188,6 +199,15 @@ const AppContent: React.FC = () => {
               )}
 
               <button
+                onClick={toggleGlossary}
+                className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-xs sm:text-sm font-semibold shadow min-h-[40px]"
+                title="Ouvrir le glossaire (Ctrl+G)"
+              >
+                <BookOpen className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Glossaire</span>
+              </button>
+
+              <button
                 onClick={toggleFullscreen}
                 className="flex items-center px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm font-semibold shadow"
                 title={isFullscreen ? "Quitter le plein écran" : "Plein écran"}
@@ -206,6 +226,9 @@ const AppContent: React.FC = () => {
       <main className={view === 'course' ? '' : 'container mx-auto p-4 sm:p-6 lg:p-8'}>
         {renderContent()}
       </main>
+
+      {/* Glossaire */}
+      <GlossaryPanel />
     </div>
   );
 };
@@ -213,7 +236,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <TimerProvider>
-      <AppContent />
+      <GlossaryProvider>
+        <AppContent />
+      </GlossaryProvider>
     </TimerProvider>
   );
 };
