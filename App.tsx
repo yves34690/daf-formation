@@ -153,37 +153,37 @@ const AppContent: React.FC = () => {
       <GlobalTimer />
 
       <header className="bg-white shadow-md sticky top-0 z-40">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold text-slate-900">
+        <div className="container mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-3 sm:py-4">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900">
               <span className="text-blue-600">DAF</span> {mode === 'morning' ? 'Formation' : 'Business Game'}
             </h1>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={handleBackToHub}
-                className="flex items-center px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 transition-colors text-sm font-semibold"
+                className="flex items-center px-3 sm:px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 transition-colors text-xs sm:text-sm font-semibold min-h-[40px]"
               >
-                <Home className="w-4 h-4 mr-2" />
-                Accueil
+                <Home className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Accueil</span>
               </button>
 
               {view === 'game' && (
                 <button
                   onClick={handleBackToSelection}
-                  className="flex items-center px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 transition-colors text-sm font-semibold"
+                  className="flex items-center px-3 sm:px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 transition-colors text-xs sm:text-sm font-semibold min-h-[40px]"
                 >
-                  <Users className="w-4 h-4 mr-2" />
-                  Changer de scénario
+                  <Users className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Changer de scénario</span>
                 </button>
               )}
 
               {(view === 'selection' || view === 'game') && (
                 <button
                   onClick={handleGoToVoting}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-semibold shadow"
+                  className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-xs sm:text-sm font-semibold shadow min-h-[40px]"
                 >
-                  <Vote className="w-4 h-4 mr-2" />
-                  Passer au vote
+                  <Vote className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Passer au vote</span><span className="sm:hidden">Vote</span>
                 </button>
               )}
 

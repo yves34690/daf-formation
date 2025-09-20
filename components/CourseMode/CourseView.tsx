@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import ChapterNavigation from './ChapterNavigation';
+import { Menu, X } from 'lucide-react';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import Chapter1Representations from './ChapterContent/Chapter1Representations';
 // Import des autres chapitres qui seront créés plus tard
 // import Chapter2Evolutions from './ChapterContent/Chapter2Evolutions';
@@ -14,6 +16,8 @@ interface CourseViewProps {
 const CourseView: React.FC<CourseViewProps> = ({ onComplete }) => {
   const [currentChapter, setCurrentChapter] = useState(1);
   const [completedChapters, setCompletedChapters] = useState<number[]>([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const chapters = [
     { id: 1, title: 'Les représentations du métier', duration: 90, completed: false, current: true, locked: false },
@@ -458,19 +462,47 @@ const CourseView: React.FC<CourseViewProps> = ({ onComplete }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-4">
-      <div className="max-w-[1600px] mx-auto px-6">
+      <div className="max-w-full lg:max-w-[1600px] mx-auto px-4 sm:px-6">
+        {/* Mobile Menu Button */}
+        {isMobile && (
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="fixed top-20 left-4 z-50 p-2 bg-blue-600 text-white rounded-lg shadow-lg lg:hidden"
+          >
+            {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        )}
+
         <div className="flex gap-6">
-          {/* Sidebar Navigation */}
-          <div className="flex-shrink-0">
+          {/* Sidebar Navigation - Desktop */}
+          <div className={`
+            ${isMobile ? 'fixed inset-y-0 left-0 z-40 transform transition-transform duration-300' : 'flex-shrink-0'}
+            ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+            ${isMobile ? 'w-full sm:w-80 bg-white shadow-xl' : ''}
+            ${isMobile ? 'top-16' : ''}
+          `}>
             <ChapterNavigation
               chapters={chaptersWithStatus}
-              onSelectChapter={handleSelectChapter}
+              onSelectChapter={(chapterId) => {
+                handleSelectChapter(chapterId);
+                if (isMobile) {
+                  setIsSidebarOpen(false);
+                }
+              }}
               currentChapterId={currentChapter}
             />
           </div>
 
+          {/* Overlay for mobile */}
+          {isMobile && isSidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+
           {/* Main Content */}
-          <div className="flex-1">
+          <div className={`flex-1 ${isMobile ? 'mt-8' : ''}`}>
             {renderChapterContent()}
           </div>
         </div>

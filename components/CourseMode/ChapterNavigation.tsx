@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check, Lock, Play, Clock } from 'lucide-react';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 interface Chapter {
   id: number;
@@ -21,9 +22,10 @@ const ChapterNavigation: React.FC<ChapterNavigationProps> = ({
   onSelectChapter,
   currentChapterId,
 }) => {
+  const isMobile = useIsMobile();
   return (
-    <div className="w-80 bg-white shadow-lg rounded-lg p-6 h-fit">
-      <h2 className="text-xl font-bold text-slate-900 mb-6">
+    <div className={`${isMobile ? 'w-full h-full overflow-y-auto' : 'w-64 lg:w-80'} bg-white ${isMobile ? '' : 'shadow-lg rounded-lg'} p-4 sm:p-6 h-fit`}>
+      <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6">
         Programme de Formation
       </h2>
 
@@ -32,7 +34,7 @@ const ChapterNavigation: React.FC<ChapterNavigationProps> = ({
           <button
             key={chapter.id}
             onClick={() => !chapter.locked && onSelectChapter(chapter.id)}
-            className={`w-full text-left p-4 rounded-lg transition-all ${
+            className={`w-full text-left p-3 sm:p-4 rounded-lg transition-all min-h-[60px] ${
               chapter.current
                 ? 'bg-blue-50 border-2 border-blue-500'
                 : chapter.completed
