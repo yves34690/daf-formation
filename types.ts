@@ -1,10 +1,12 @@
+import { ReactNode } from 'react';
+
 export interface Company {
   name: string;
   logo: string;
-  product: string;
-  situation: string;
+  product: string | ReactNode;
+  situation: string | ReactNode;
   problem: string;
-  implication: string;
+  implication: string | ReactNode;
   necessity: string;
   price: string;
 }
@@ -12,8 +14,8 @@ export interface Company {
 export interface SME {
   name: string;
   industry: string;
-  description: string;
-  challenges: string[];
+  description: string | ReactNode;
+  challenges: (string | ReactNode)[];
 }
 
 export interface Scenario {

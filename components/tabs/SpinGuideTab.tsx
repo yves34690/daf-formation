@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import GlossaryTerm from '../Glossary/GlossaryTerm';
 
 const SpinTextarea: React.FC<{ title: string; placeholder: string; initialValue: string }> = ({ title, placeholder, initialValue }) => {
     const [value, setValue] = useState(initialValue);
@@ -25,9 +26,9 @@ const SpinGuideTab: React.FC = () => {
   return (
     <div className="animate-fade-in">
       <h3 className="text-2xl font-bold text-slate-900 mb-2">
-        Construire votre questionnaire SPIN
+        Construire votre questionnaire <GlossaryTerm term="SPIN">SPIN</GlossaryTerm>
       </h3>
-      <p className="text-slate-600 mb-6">Chaque rôle prépare ses questions pour structurer la négociation. Le but est de découvrir les vrais enjeux financiers et de construire une argumentation solide.</p>
+      <p className="text-slate-600 mb-6">Chaque rôle prépare ses questions pour structurer la négociation. Le but est de découvrir les vrais enjeux financiers et de construire une argumentation solide en utilisant la méthode <GlossaryTerm term="SPIN">SPIN</GlossaryTerm>.</p>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <SpinTextarea 

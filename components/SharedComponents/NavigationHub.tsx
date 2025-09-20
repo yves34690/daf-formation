@@ -1,11 +1,13 @@
 import React from 'react';
-import { BookOpen, Gamepad2, Calendar, Clock, ArrowRight } from 'lucide-react';
+import { BookOpen, Gamepad2, Calendar, Clock, ArrowRight, Wrench } from 'lucide-react';
+import GlossaryTerm from '../Glossary/GlossaryTerm';
 
 interface NavigationHubProps {
   onSelectMode: (mode: 'morning' | 'afternoon' | 'full') => void;
+  onShowWorkshops?: () => void;
 }
 
-const NavigationHub: React.FC<NavigationHubProps> = ({ onSelectMode }) => {
+const NavigationHub: React.FC<NavigationHubProps> = ({ onSelectMode, onShowWorkshops }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4 sm:p-8">
       <div className="max-w-6xl w-full">
@@ -14,11 +16,11 @@ const NavigationHub: React.FC<NavigationHubProps> = ({ onSelectMode }) => {
             Formation <span className="text-blue-600">DAF</span>
           </h1>
           <p className="text-lg sm:text-xl text-slate-600 px-4 sm:px-0">
-            Comprendre les enjeux métiers du Directeur Administratif et Financier
+            Comprendre les enjeux métiers du <GlossaryTerm term="DAF">Directeur Administratif et Financier</GlossaryTerm>
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Formation Matin */}
           <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 cursor-pointer"
                onClick={() => onSelectMode('morning')}>
@@ -33,7 +35,7 @@ const NavigationHub: React.FC<NavigationHubProps> = ({ onSelectMode }) => {
                 Formation Théorique
               </h2>
               <p className="text-slate-600 mb-6">
-                Découvrez les missions, enjeux et évolutions du métier de DAF à travers 5 modules interactifs.
+                Découvrez les missions, enjeux et évolutions du métier de <GlossaryTerm term="DAF">DAF</GlossaryTerm> à travers 5 modules interactifs.
               </p>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-center text-sm text-slate-600">
@@ -70,7 +72,7 @@ const NavigationHub: React.FC<NavigationHubProps> = ({ onSelectMode }) => {
                 Business Game
               </h2>
               <p className="text-slate-600 mb-6">
-                Mettez en pratique vos connaissances en négociant avec des DAF virtuels.
+                Mettez en pratique vos connaissances en négociant avec des <GlossaryTerm term="DAF">DAF</GlossaryTerm> virtuels.
               </p>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-center text-sm text-slate-600">
@@ -92,6 +94,45 @@ const NavigationHub: React.FC<NavigationHubProps> = ({ onSelectMode }) => {
               </button>
             </div>
           </div>
+
+          {/* Ateliers */}
+          {onShowWorkshops && (
+            <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 cursor-pointer border-2 border-orange-200"
+                 onClick={onShowWorkshops}>
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <Wrench className="w-12 h-12 text-orange-600" />
+                  <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-semibold">
+                    Démo
+                  </span>
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-3">
+                  Ateliers Interactifs
+                </h2>
+                <p className="text-slate-600 mb-6">
+                  Découvrez et testez les ateliers pédagogiques : quiz et générateur de cas.
+                </p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center text-sm text-slate-600">
+                    <span className="w-2 h-2 bg-orange-600 rounded-full mr-2"></span>
+                    Quiz - Représentations métier
+                  </li>
+                  <li className="flex items-center text-sm text-slate-600">
+                    <span className="w-2 h-2 bg-orange-600 rounded-full mr-2"></span>
+                    Générateur de cas concrets
+                  </li>
+                  <li className="flex items-center text-sm text-slate-600">
+                    <span className="w-2 h-2 bg-orange-600 rounded-full mr-2"></span>
+                    Accès direct pour démo
+                  </li>
+                </ul>
+                <button className="w-full flex items-center justify-center gap-2 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition-colors font-semibold min-h-[48px]">
+                  Voir les ateliers
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Journée Complète */}
           <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 cursor-pointer text-white"
