@@ -3,7 +3,7 @@ import { ArrowLeft, Award, HelpCircle, FileText, MessageSquare, CheckCircle } fr
 import { Student } from '../types';
 import { getUserProgress } from '../utils/storage';
 import { getCasesFromLocalStorage } from '../data/caseBuilderData';
-import { getAllDeliverablesForUser } from '../utils/storage';
+import { getPublishedDeliverablesForUser } from '../utils/storage';
 
 interface StudentWorkViewProps {
   student: Student;
@@ -13,7 +13,7 @@ interface StudentWorkViewProps {
 export const StudentWorkView: React.FC<StudentWorkViewProps> = ({ student, onBack }) => {
   const progress = getUserProgress(student.id);
   const cases = getCasesFromLocalStorage(student.id);
-  const deliverables = getAllDeliverablesForUser(student.id);
+  const deliverables = getPublishedDeliverablesForUser(student.id);
 
   // Récupérer le score du quiz
   const quizScore = progress?.workshopScores.find(ws => ws.workshopId === 'quiz-representations-metier');
@@ -30,7 +30,7 @@ export const StudentWorkView: React.FC<StudentWorkViewProps> = ({ student, onBac
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-100 to-blue-50 p-8">
+    <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-slate-100 to-blue-50 overflow-y-auto z-50 p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -69,7 +69,7 @@ export const StudentWorkView: React.FC<StudentWorkViewProps> = ({ student, onBac
               <div className="bg-blue-50 rounded-lg p-4">
                 <p className="text-sm text-slate-600 mb-1">Score</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {quizScore.details?.score || 0}/{quizScore.details?.totalQuestions || 0}
+                  {quizScore.data?.score || 0}/{quizScore.data?.totalQuestions || 0}
                 </p>
               </div>
               <div className="bg-green-50 rounded-lg p-4">
@@ -79,14 +79,14 @@ export const StudentWorkView: React.FC<StudentWorkViewProps> = ({ student, onBac
               <div className="bg-purple-50 rounded-lg p-4">
                 <p className="text-sm text-slate-600 mb-1">Temps passé</p>
                 <p className="text-2xl font-bold text-purple-600">
-                  {quizScore.details?.timeSpent || 'N/A'}
+                  {quizScore.data?.timeSpent ? `${quizScore.data.timeSpent}s` : 'N/A'}
                 </p>
               </div>
-              {quizScore.details?.categoryScores && (
+              {quizScore.data?.categoryScores && (
                 <div className="md:col-span-3 bg-slate-50 rounded-lg p-4">
                   <p className="text-sm font-semibold text-slate-700 mb-3">Scores par catégorie</p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {Object.entries(quizScore.details.categoryScores).map(([category, score]) => (
+                    {Object.entries(quizScore.data.categoryScores).map(([category, score]) => (
                       <div key={category} className="bg-white rounded p-3 border border-slate-200">
                         <p className="text-xs text-slate-600 mb-1">{category}</p>
                         <p className="text-lg font-bold text-slate-800">
@@ -123,25 +123,66 @@ export const StudentWorkView: React.FC<StudentWorkViewProps> = ({ student, onBac
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-700 mb-2">🎯 Défi</p>
-                      <p className="text-sm text-slate-600 mb-1"><strong>Contexte:</strong> {caseItem.challenge.context}</p>
-                      <p className="text-sm text-slate-600"><strong>Problème:</strong> {caseItem.challenge.problem}</p>
+                  <div className="space-y-4 mt-4">
+                    {/* Défi */}
+                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                      <p className="text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                        🎯 Défi
+                      </p>
+                      <div className="space-y-2">
+                        <p className="text-sm text-slate-700"><strong>Contexte:</strong> {caseItem.challenge.context}</p>
+                        <p className="text-sm text-slate-700"><strong>Problème:</strong> {caseItem.challenge.problem}</p>
+                        <p className="text-sm text-slate-700"><strong>Impact:</strong> {caseItem.challenge.impact}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-700 mb-2">💡 Solution</p>
-                      <p className="text-sm text-slate-600 mb-1"><strong>Approche:</strong> {caseItem.solution.approach}</p>
-                      <p className="text-sm text-slate-600"><strong>Outils:</strong> {caseItem.solution.tools}</p>
+
+                    {/* Solution */}
+                    <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                      <p className="text-sm font-bold text-green-900 mb-3 flex items-center gap-2">
+                        💡 Solution
+                      </p>
+                      <div className="space-y-2">
+                        <p className="text-sm text-slate-700"><strong>Approche:</strong> {caseItem.solution.approach}</p>
+                        <div className="text-sm text-slate-700">
+                          <strong>Outils:</strong>
+                          <ul className="list-disc list-inside ml-2 mt-1">
+                            {caseItem.solution.tools.map((tool, idx) => (
+                              <li key={idx}>{tool}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <p className="text-sm text-slate-700"><strong>Implémentation:</strong> {caseItem.solution.implementation}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-700 mb-2">📊 Résultats</p>
-                      <p className="text-sm text-slate-600">{caseItem.results.measurableROI}</p>
+
+                    {/* Résultats */}
+                    <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                      <p className="text-sm font-bold text-purple-900 mb-3 flex items-center gap-2">
+                        📊 Résultats
+                      </p>
+                      <div className="space-y-2">
+                        <p className="text-sm text-slate-700"><strong>ROI mesurable:</strong> {caseItem.results.measurableROI}</p>
+                        <p className="text-sm text-slate-700"><strong>Gains de temps:</strong> {caseItem.results.timeGains}</p>
+                        <div className="text-sm text-slate-700">
+                          <strong>Autres bénéfices:</strong>
+                          <ul className="list-disc list-inside ml-2 mt-1">
+                            {caseItem.results.otherBenefits.map((benefit, idx) => (
+                              <li key={idx}>{benefit}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-700 mb-2">🔍 Perspective DAF</p>
-                      <p className="text-sm text-slate-600 mb-1"><strong>Préoccupations:</strong> {caseItem.dafPerspective.concerns}</p>
-                      <p className="text-sm text-slate-600"><strong>Questions:</strong> {caseItem.dafPerspective.questions}</p>
+
+                    {/* Perspective DAF */}
+                    <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                      <p className="text-sm font-bold text-orange-900 mb-3 flex items-center gap-2">
+                        🔍 Perspective DAF
+                      </p>
+                      <div className="space-y-2">
+                        <p className="text-sm text-slate-700"><strong>Préoccupations:</strong> {caseItem.dafPerspective.concerns}</p>
+                        <p className="text-sm text-slate-700"><strong>Questions:</strong> {caseItem.dafPerspective.questions}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -199,7 +240,20 @@ export const StudentWorkView: React.FC<StudentWorkViewProps> = ({ student, onBac
                     <div className="space-y-4">
                       {hasProposal && (
                         <div>
-                          <h4 className="font-semibold text-md text-blue-700 mb-2">📄 Proposition Commerciale</h4>
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold text-md text-blue-700">📄 Proposition Commerciale</h4>
+                            {content.proposalPublishedAt && (
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-medium">
+                                Publié le {new Date(content.proposalPublishedAt).toLocaleDateString('fr-FR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            )}
+                          </div>
                           <div className="bg-white rounded p-3 border border-slate-200 max-h-64 overflow-y-auto">
                             <p className="text-sm text-slate-700 whitespace-pre-wrap">{content.proposal}</p>
                           </div>
@@ -208,7 +262,20 @@ export const StudentWorkView: React.FC<StudentWorkViewProps> = ({ student, onBac
 
                       {hasSpecs && (
                         <div>
-                          <h4 className="font-semibold text-md text-orange-700 mb-2">📋 Cahier des Charges</h4>
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold text-md text-orange-700">📋 Cahier des Charges</h4>
+                            {content.specsPublishedAt && (
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-medium">
+                                Publié le {new Date(content.specsPublishedAt).toLocaleDateString('fr-FR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            )}
+                          </div>
                           <div className="bg-white rounded p-3 border border-slate-200 max-h-64 overflow-y-auto">
                             <p className="text-sm text-slate-700 whitespace-pre-wrap">{content.specs}</p>
                           </div>

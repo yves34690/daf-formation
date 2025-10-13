@@ -37,6 +37,15 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<Student | null>(null);
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
 
+  // Fonction de chargement de la progression - DOIT être un useCallback
+  const loadUserProgress = useCallback((userId: string) => {
+    let progress = getUserProgress(userId);
+    if (!progress) {
+      progress = initializeUserProgress(userId);
+    }
+    setUserProgress(progress);
+  }, []);
+
   // Charger l'utilisateur depuis le localStorage au montage
   useEffect(() => {
     const userId = getCurrentUserId();
@@ -50,15 +59,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         clearCurrentUser();
       }
     }
-  }, []);
-
-  const loadUserProgress = (userId: string) => {
-    let progress = getUserProgress(userId);
-    if (!progress) {
-      progress = initializeUserProgress(userId);
-    }
-    setUserProgress(progress);
-  };
+  }, [loadUserProgress]);
 
   const login = useCallback((userId: string) => {
     const student = findStudentById(userId);
@@ -69,7 +70,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     } else {
       console.error('Student not found:', userId);
     }
-  }, []);
+  }, [loadUserProgress]);
 
   const logout = useCallback(() => {
     setCurrentUser(null);
@@ -81,7 +82,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     if (currentUser) {
       loadUserProgress(currentUser.id);
     }
-  }, [currentUser]);
+  }, [currentUser, loadUserProgress]);
 
   const value: UserContextType = {
     currentUser,
