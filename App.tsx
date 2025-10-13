@@ -8,19 +8,25 @@ import NavigationHub from './components/SharedComponents/NavigationHub';
 import CourseView from './components/CourseMode/CourseView';
 import WorkshopsView from './components/WorkshopsView';
 import GlobalTimer from './components/Timer/GlobalTimer';
+import LoginView from './components/LoginView';
+import UserProfile from './components/UserProfile';
+import TeacherDashboard from './components/TeacherDashboard';
 import { TimerProvider, useTimer } from './components/Timer/TimerContext';
 import { GlossaryProvider, useGlossary } from './contexts/GlossaryContext';
+import { UserProvider, useUser } from './contexts/UserContext';
 import GlossaryPanel from './components/Glossary/GlossaryPanel';
 import GlossaryTerm from './components/Glossary/GlossaryTerm';
-import { Users, Vote, Maximize2, Minimize2, Home, BookOpen } from 'lucide-react';
+import { isTeacher } from './data/students';
+import { Users, Vote, Maximize2, Minimize2, Home, BookOpen, User as UserIcon, LogOut, ChevronDown, BarChart3 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
+  // TOUS les hooks doivent être déclarés EN PREMIER, avant tout return conditionnel
   const [view, setView] = useState<'hub' | 'course' | 'selection' | 'game' | 'voting' | 'workshops'>('hub');
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-
-  const { startTimer, mode } = useTimer();
-  const { toggleGlossary } = useGlossary();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showTeacherDashboard, setShowTeacherDashboard] = useState(false);
 
   const [deliverables, setDeliverables] = useState<Record<number, DeliverableContent>>(() =>
     SCENARIOS.reduce((acc, scenario) => {
@@ -36,6 +42,14 @@ const AppContent: React.FC = () => {
     }, {} as Record<number, VoteCounts>)
   );
 
+  const { startTimer, mode } = useTimer();
+  const { toggleGlossary } = useGlossary();
+  const { currentUser, isAuthenticated, login, logout } = useUser();
+
+  // Vérifier si l'utilisateur connecté est un formateur
+  const userIsTeacher = currentUser && isTeacher(currentUser);
+
+  // Tous les useCallback et useMemo AVANT tout return conditionnel
   const handleScenarioSelect = useCallback((scenario: Scenario) => {
     setSelectedScenario(scenario);
     setView('game');
@@ -122,8 +136,19 @@ const AppContent: React.FC = () => {
     return null;
   }, [selectedScenario, deliverables]);
 
+  // Génération d'initiales pour l'avatar
+  const getInitials = useCallback((): string => {
+    if (!currentUser) return '??';
+    return `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase();
+  }, [currentUser]);
 
-  const renderContent = () => {
+  const handleLogout = useCallback(() => {
+    logout();
+    setView('hub');
+    setShowUserMenu(false);
+  }, [logout]);
+
+  const renderContent = useCallback(() => {
     switch (view) {
       case 'hub':
         return <NavigationHub onSelectMode={handleModeSelect} onShowWorkshops={handleShowWorkshops} />;
@@ -144,16 +169,23 @@ const AppContent: React.FC = () => {
             />
           );
         }
-        return null; // Should not happen if logic is correct
+        return null;
       case 'voting':
         return <VotingView scenarios={SCENARIOS} deliverables={deliverables} votes={votes} onVote={handleVote} />;
     }
-  };
+  }, [view, handleModeSelect, handleShowWorkshops, handleCourseComplete, handleBackToHub, handleScenarioSelect, selectedScenario, currentDeliverables, handleDeliverableChange, deliverables, votes, handleVote]);
+
+  // MAINTENANT on peut faire les returns conditionnels
+  if (!isAuthenticated) {
+    return <LoginView onLogin={login} />;
+  }
 
   if (view === 'hub' || view === 'workshops') {
     return (
       <div className="min-h-screen">
         {renderContent()}
+        {showUserProfile && <UserProfile onClose={() => setShowUserProfile(false)} />}
+        {showTeacherDashboard && <TeacherDashboard onClose={() => setShowTeacherDashboard(false)} />}
       </div>
     );
   }
@@ -218,6 +250,63 @@ const AppContent: React.FC = () => {
                   <Maximize2 className="w-4 h-4" />
                 )}
               </button>
+
+              {/* Menu utilisateur */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors min-h-[40px]"
+                >
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    {getInitials()}
+                  </div>
+                  <span className="hidden md:inline text-sm font-semibold text-slate-900">
+                    {currentUser?.firstName}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-slate-600" />
+                </button>
+
+                {/* Dropdown menu */}
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
+                    <div className="px-4 py-3 border-b border-slate-200">
+                      <p className="text-sm font-semibold text-slate-900">
+                        {currentUser?.firstName} {currentUser?.lastName}
+                      </p>
+                      <p className="text-xs text-slate-500">{currentUser?.company}</p>
+                    </div>
+                    {userIsTeacher && (
+                      <button
+                        onClick={() => {
+                          setShowTeacherDashboard(true);
+                          setShowUserMenu(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 transition-colors font-semibold"
+                      >
+                        <BarChart3 className="w-4 h-4" />
+                        Dashboard Formateur
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        setShowUserProfile(true);
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <UserIcon className="w-4 h-4" />
+                      Mon profil
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Changer d'utilisateur
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -229,17 +318,25 @@ const AppContent: React.FC = () => {
 
       {/* Glossaire */}
       <GlossaryPanel />
+
+      {/* Profil utilisateur */}
+      {showUserProfile && <UserProfile onClose={() => setShowUserProfile(false)} />}
+
+      {/* Dashboard formateur */}
+      {showTeacherDashboard && <TeacherDashboard onClose={() => setShowTeacherDashboard(false)} />}
     </div>
   );
 };
 
 const App: React.FC = () => {
   return (
-    <TimerProvider>
-      <GlossaryProvider>
-        <AppContent />
-      </GlossaryProvider>
-    </TimerProvider>
+    <UserProvider>
+      <TimerProvider>
+        <GlossaryProvider>
+          <AppContent />
+        </GlossaryProvider>
+      </TimerProvider>
+    </UserProvider>
   );
 };
 

@@ -27,9 +27,47 @@ export interface Scenario {
 export interface DeliverableContent {
   proposal: string;
   specs: string;
+  author?: string; // ID de l'étudiant auteur
+  teamMembers?: string[]; // IDs des membres de l'équipe
+  lastModified?: string; // Date de dernière modification
 }
 
 export interface VoteCounts {
   proposal: number;
   specs: number;
+}
+
+// Nouveaux types pour la gestion des utilisateurs
+
+export interface Vote {
+  scenarioId: number;
+  type: 'proposal' | 'specs';
+  votedAt: string; // ISO date string
+}
+
+export interface WorkshopScore {
+  workshopId: string; // 'quiz' | 'caseBuilder'
+  score?: number; // Pour le quiz
+  completedAt: string;
+  data?: any; // Données spécifiques au workshop (ex: cas créés)
+}
+
+export interface ChapterProgress {
+  chapterId: number;
+  status: 'not_started' | 'in_progress' | 'completed';
+  completedSections?: string[];
+  lastVisited?: string;
+}
+
+export interface UserProgress {
+  userId: string;
+  chapters: ChapterProgress[];
+  workshopScores: WorkshopScore[];
+  votes: Vote[];
+  gameParticipation: {
+    scenarioId: number;
+    role: 'commercial' | 'daf';
+    teamMembers: string[];
+  }[];
+  lastActivity: string;
 }
