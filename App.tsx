@@ -11,6 +11,7 @@ import GlobalTimer from './components/Timer/GlobalTimer';
 import LoginView from './components/LoginView';
 import UserProfile from './components/UserProfile';
 import TeacherDashboard from './components/TeacherDashboard';
+import LandingPage from './components/LandingPage';
 import { TimerProvider, useTimer } from './components/Timer/TimerContext';
 import { GlossaryProvider, useGlossary } from './contexts/GlossaryContext';
 import { UserProvider, useUser } from './contexts/UserContext';
@@ -27,6 +28,7 @@ const AppContent: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showTeacherDashboard, setShowTeacherDashboard] = useState(false);
+  const [showLandingPage, setShowLandingPage] = useState(true);
 
   const [deliverables, setDeliverables] = useState<Record<number, DeliverableContent>>(() =>
     SCENARIOS.reduce((acc, scenario) => {
@@ -146,7 +148,12 @@ const AppContent: React.FC = () => {
     logout();
     setView('hub');
     setShowUserMenu(false);
+    setShowLandingPage(true);
   }, [logout]);
+
+  const handleGetStarted = useCallback(() => {
+    setShowLandingPage(false);
+  }, []);
 
   const renderContent = useCallback(() => {
     switch (view) {
@@ -176,6 +183,12 @@ const AppContent: React.FC = () => {
   }, [view, handleModeSelect, handleShowWorkshops, handleCourseComplete, handleBackToHub, handleScenarioSelect, selectedScenario, currentDeliverables, handleDeliverableChange, deliverables, votes, handleVote]);
 
   // MAINTENANT on peut faire les returns conditionnels
+  // Show landing page first
+  if (showLandingPage && !isAuthenticated) {
+    return <LandingPage onGetStarted={handleGetStarted} />;
+  }
+
+  // Then show login
   if (!isAuthenticated) {
     return <LoginView onLogin={login} />;
   }
