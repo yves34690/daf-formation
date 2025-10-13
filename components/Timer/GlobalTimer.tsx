@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Clock, Pause, Play, RotateCcw, AlertTriangle } from 'lucide-react';
 import { useTimer } from './TimerContext';
 
 const GlobalTimer: React.FC = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   const {
     isRunning,
     mode,
@@ -39,9 +41,34 @@ const GlobalTimer: React.FC = () => {
 
   if (!mode) return null;
 
+  // Version réduite du chronomètre
+  if (isCollapsed) {
+    return (
+      <div
+        className="fixed top-20 right-4 z-50 bg-white shadow-lg rounded-lg p-3 border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-300"
+        onClick={() => setIsCollapsed(false)}
+        title="Cliquez pour développer"
+      >
+        <div className="flex items-center gap-2">
+          <Clock className={`w-5 h-5 ${showCritical ? 'text-red-600 animate-pulse' : showAlert ? 'text-orange-500' : showWarning ? 'text-yellow-500' : 'text-blue-600'}`} />
+          <span className={`font-mono text-lg font-bold ${showCritical ? 'text-red-600' : showAlert ? 'text-orange-600' : showWarning ? 'text-yellow-600' : 'text-gray-800'}`}>
+            {formatTime(timeRemaining)}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Version complète du chronomètre
   return (
-    <div className="fixed top-20 right-4 z-50 bg-white shadow-lg rounded-lg p-4 min-w-[320px] border border-gray-200">
-      <div className="flex items-center justify-between mb-3">
+    <div
+      className="fixed top-20 right-4 z-50 bg-white shadow-lg rounded-lg p-4 min-w-[320px] border border-gray-200 transition-all duration-300"
+    >
+      <div
+        className="flex items-center justify-between mb-3 cursor-pointer"
+        onClick={() => setIsCollapsed(true)}
+        title="Cliquez pour réduire"
+      >
         <div className="flex items-center gap-2">
           <Clock className={`w-5 h-5 ${showCritical ? 'text-red-600 animate-pulse' : showAlert ? 'text-orange-500' : showWarning ? 'text-yellow-500' : 'text-blue-600'}`} />
           <span className="font-semibold text-gray-700">
@@ -50,7 +77,10 @@ const GlobalTimer: React.FC = () => {
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={isRunning ? pauseTimer : resumeTimer}
+            onClick={(e) => {
+              e.stopPropagation();
+              isRunning ? pauseTimer() : resumeTimer();
+            }}
             className="p-1.5 rounded hover:bg-gray-100 transition-colors"
             title={isRunning ? 'Mettre en pause' : 'Reprendre'}
           >
