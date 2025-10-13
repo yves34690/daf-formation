@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Scenario, DeliverableContent } from '../types';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { useUser } from '../contexts/UserContext';
+import { addGameParticipation } from '../utils/storage';
 import ScenarioTab from './tabs/ScenarioTab';
 import SpinGuideTab from './tabs/SpinGuideTab';
 import DeliverablesTab from './tabs/DeliverablesTab';
@@ -18,6 +20,15 @@ type Tab = 'scenario' | 'spin' | 'deliverables' | 'resources';
 const GameView: React.FC<GameViewProps> = ({ scenario, deliverables, onDeliverableChange }) => {
   const [activeTab, setActiveTab] = useState<Tab>('scenario');
   const isMobile = useIsMobile();
+  const { currentUser } = useUser();
+
+  // Enregistrer la participation quand l'utilisateur ouvre un scénario
+  useEffect(() => {
+    if (currentUser && scenario) {
+      // On enregistre qu'il a participé (rôle par défaut "commercial", peut être amélioré plus tard)
+      addGameParticipation(currentUser.id, scenario.id, 'commercial', []);
+    }
+  }, [currentUser, scenario]);
 
   const tabs = [
     { id: 'scenario', label: 'Scénario', icon: Briefcase },

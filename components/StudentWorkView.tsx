@@ -18,17 +18,15 @@ export const StudentWorkView: React.FC<StudentWorkViewProps> = ({ student, onBac
   // Récupérer le score du quiz
   const quizScore = progress?.workshopScores.find(ws => ws.workshopId === 'quiz-representations-metier');
 
-  // Récupérer les questions SPIN (utilise les clés localStorage génériques car pas de userId dans les clés actuelles)
+  // Récupérer les questions SPIN avec userId
   const spinSections = [
-    { key: 'spin-questions-situation', title: 'Questions de Situation', icon: '📍' },
-    { key: 'spin-questions-problème', title: 'Questions de Problème', icon: '⚠️' },
-    { key: 'spin-questions-implication', title: 'Questions d\'Implication', icon: '💡' },
-    { key: 'spin-questions-need-payoff', title: 'Questions de Need-Payoff', icon: '🎯' }
+    { keyPart: 'pour-les-commerciaux-it', title: 'Pour les Commerciaux IT', icon: '📍' },
+    { keyPart: 'pour-le-daf-(réflexion-interne)', title: 'Pour le DAF (Réflexion interne)', icon: '🎯' }
   ];
 
   const spinData = spinSections.map(section => ({
     ...section,
-    content: localStorage.getItem(section.key) || ''
+    content: localStorage.getItem(`daf-spin-${student.id}-${section.keyPart}`) || ''
   }));
 
   return (

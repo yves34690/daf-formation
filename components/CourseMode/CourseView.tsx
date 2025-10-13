@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ChapterNavigation from './ChapterNavigation';
 import { Menu, X, Wrench, FileText } from 'lucide-react';
 import { useIsMobile } from '../../hooks/useIsMobile';
+import { useChapterProgress } from '../../hooks/useChapterProgress';
+import { useUser } from '../../contexts/UserContext';
 import Chapter1Representations from './ChapterContent/Chapter1Representations';
 import GlossaryTerm from '../Glossary/GlossaryTerm';
 import CaseBuilderWorkshop from '../Workshops/CaseBuilderWorkshop';
@@ -17,30 +19,44 @@ interface CourseViewProps {
 
 const CourseView: React.FC<CourseViewProps> = ({ onComplete }) => {
   const [currentChapter, setCurrentChapter] = useState(1);
-  const [completedChapters, setCompletedChapters] = useState<number[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showCaseBuilder, setShowCaseBuilder] = useState(false);
   const [showWorkshopChapter2, setShowWorkshopChapter2] = useState(false);
   const isMobile = useIsMobile();
+  const { currentUser } = useUser();
+  const { getProgress, markChapterStarted, markChapterCompleted } = useChapterProgress();
 
   const chapters = [
-    { id: 1, title: 'Les représentations du métier', duration: 90, completed: false, current: true, locked: false },
-    { id: 2, title: 'La réalité du métier', duration: 45, completed: false, current: false, locked: true },
-    { id: 3, title: 'Préparation à la mise en situation', duration: 60, completed: false, current: false, locked: true },
-    { id: 4, title: 'Préparation au Business Game', duration: 45, completed: false, current: false, locked: true },
+    { id: 1, title: 'Les représentations du métier', duration: 90 },
+    { id: 2, title: 'La réalité du métier', duration: 45 },
+    { id: 3, title: 'Préparation à la mise en situation', duration: 60 },
+    { id: 4, title: 'Préparation au Business Game', duration: 45 },
   ];
 
-  const chaptersWithStatus = chapters.map(chapter => ({
-    ...chapter,
-    completed: completedChapters.includes(chapter.id),
-    current: chapter.id === currentChapter,
-    // Pour l'instant, déverrouiller tous les chapitres pour faciliter la navigation
-    locked: false // chapter.id > 1 && !completedChapters.includes(chapter.id - 1)
-  }));
+  // Charger le statut des chapitres depuis le localStorage
+  const chaptersWithStatus = chapters.map(chapter => {
+    const progress = currentUser ? getProgress(chapter.id) : null;
+    const isCompleted = progress?.status === 'completed';
+    const isCurrent = chapter.id === currentChapter;
+
+    return {
+      ...chapter,
+      completed: isCompleted,
+      current: isCurrent,
+      locked: false // Tous déverrouillés pour faciliter navigation
+    };
+  });
+
+  // Marquer le chapitre actuel comme commencé
+  useEffect(() => {
+    if (currentUser && currentChapter) {
+      markChapterStarted(currentChapter);
+    }
+  }, [currentChapter, currentUser, markChapterStarted]);
 
   const handleChapterComplete = () => {
-    if (!completedChapters.includes(currentChapter)) {
-      setCompletedChapters([...completedChapters, currentChapter]);
+    if (currentUser) {
+      markChapterCompleted(currentChapter);
     }
 
     // Passer au chapitre suivant si disponible

@@ -24,6 +24,16 @@ export const TEACHER: Student = {
 
 export const STUDENTS: Student[] = [
   {
+    id: 'test-user',
+    firstName: 'Test',
+    lastName: 'UTILISATEUR',
+    formation: 'Profil de test - Formation complète',
+    company: 'Test & Validation',
+    birthDate: '01/01/2000',
+    phone: '00.00.00.00.00',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Test'
+  },
+  {
     id: 'audra-pierre',
     firstName: 'Pierre',
     lastName: 'AUDRA',

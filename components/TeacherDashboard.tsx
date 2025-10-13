@@ -41,10 +41,12 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
       const cases = getCasesFromLocalStorage(student.id);
       const deliverables = getAllDeliverablesForUser(student.id);
 
-      // Compter les livrables rédigés (non vides)
-      const deliverablesWritten = Object.values(deliverables).filter(
-        d => (d.proposal && d.proposal.trim().length > 0) || (d.specs && d.specs.trim().length > 0)
-      ).length;
+      // Compter les livrables rédigés (non vides) - chaque document séparément
+      let deliverablesWritten = 0;
+      Object.values(deliverables).forEach(d => {
+        if (d.proposal && d.proposal.trim().length > 0) deliverablesWritten++;
+        if (d.specs && d.specs.trim().length > 0) deliverablesWritten++;
+      });
 
       if (!progress) {
         return {
