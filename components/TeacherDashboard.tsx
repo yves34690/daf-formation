@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { STUDENTS } from '../data/students';
-import type { UserProgress } from '../types';
-import { getUserProgress, exportAllUserData } from '../utils/storage';
-import { X, Download, Users, TrendingUp, Award, BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
+import type { UserProgress, Student } from '../types';
+import { getUserProgress, exportAllUserData, getAllDeliverablesForUser } from '../utils/storage';
+import { getCasesFromLocalStorage } from '../data/caseBuilderData';
+import { X, Download, Users, TrendingUp, Award, BarChart3, ChevronDown, ChevronUp, FileText, HelpCircle, Eye } from 'lucide-react';
+import { StudentWorkView } from './StudentWorkView';
 
 interface TeacherDashboardProps {
   onClose: () => void;
@@ -16,6 +18,8 @@ interface StudentStats {
   workshopsCompleted: number;
   votesEmitted: number;
   gameParticipations: number;
+  casesCreated: number;
+  deliverablesWritten: number;
   completionPercentage: number;
   lastActivity: string | null;
 }
@@ -25,6 +29,7 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
   const [sortBy, setSortBy] = useState<'name' | 'completion' | 'activity'>('completion');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   useEffect(() => {
     loadStudentsData();
@@ -33,6 +38,13 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
   const loadStudentsData = () => {
     const stats: StudentStats[] = STUDENTS.map(student => {
       const progress = getUserProgress(student.id);
+      const cases = getCasesFromLocalStorage(student.id);
+      const deliverables = getAllDeliverablesForUser(student.id);
+
+      // Compter les livrables rédigés (non vides)
+      const deliverablesWritten = Object.values(deliverables).filter(
+        d => (d.proposal && d.proposal.trim().length > 0) || (d.specs && d.specs.trim().length > 0)
+      ).length;
 
       if (!progress) {
         return {
@@ -43,6 +55,8 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
           workshopsCompleted: 0,
           votesEmitted: 0,
           gameParticipations: 0,
+          casesCreated: cases.length,
+          deliverablesWritten,
           completionPercentage: 0,
           lastActivity: null
         };
@@ -60,6 +74,8 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
         workshopsCompleted: progress.workshopScores.length,
         votesEmitted: progress.votes.length,
         gameParticipations: progress.gameParticipation.length,
+        casesCreated: cases.length,
+        deliverablesWritten,
         completionPercentage,
         lastActivity: progress.lastActivity
       };
@@ -116,6 +132,18 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
       setSortOrder('desc');
     }
   };
+
+  const handleViewWork = (studentId: string) => {
+    const student = STUDENTS.find(s => s.id === studentId);
+    if (student) {
+      setSelectedStudent(student);
+    }
+  };
+
+  // Si un étudiant est sélectionné, afficher sa vue détaillée
+  if (selectedStudent) {
+    return <StudentWorkView student={selectedStudent} onBack={() => setSelectedStudent(null)} />;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -265,24 +293,57 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
 
                 {expandedStudent === student.id && (
                   <div className="p-4 bg-white border-t border-slate-200">
-                    <div className="grid md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="font-semibold text-slate-700 mb-1">Votes émis</p>
-                        <p className="text-slate-600">{student.votesEmitted} vote(s)</p>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm mb-4">
+                      <div className="flex items-start gap-2">
+                        <Award className="w-4 h-4 text-purple-600 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-slate-700 mb-1">Votes émis</p>
+                          <p className="text-slate-600">{student.votesEmitted} vote(s)</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-slate-700 mb-1">Scénarios joués</p>
-                        <p className="text-slate-600">{student.gameParticipations} scénario(s)</p>
+                      <div className="flex items-start gap-2">
+                        <Users className="w-4 h-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-slate-700 mb-1">Scénarios joués</p>
+                          <p className="text-slate-600">{student.gameParticipations} scénario(s)</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-slate-700 mb-1">Dernière activité</p>
-                        <p className="text-slate-600">
-                          {student.lastActivity
-                            ? new Date(student.lastActivity).toLocaleString('fr-FR')
-                            : 'Aucune'}
-                        </p>
+                      <div className="flex items-start gap-2">
+                        <HelpCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-slate-700 mb-1">Cas créés (CaseBuilder)</p>
+                          <p className="text-slate-600">{student.casesCreated} cas</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <FileText className="w-4 h-4 text-orange-600 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-slate-700 mb-1">Livrables rédigés</p>
+                          <p className="text-slate-600">{student.deliverablesWritten} document(s)</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <BarChart3 className="w-4 h-4 text-slate-600 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-slate-700 mb-1">Dernière activité</p>
+                          <p className="text-slate-600">
+                            {student.lastActivity
+                              ? new Date(student.lastActivity).toLocaleString('fr-FR')
+                              : 'Aucune'}
+                          </p>
+                        </div>
                       </div>
                     </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewWork(student.id);
+                      }}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
+                    >
+                      <Eye className="w-5 h-5" />
+                      Voir tous les travaux de cet étudiant
+                    </button>
                   </div>
                 )}
               </div>

@@ -1,12 +1,51 @@
 
 import React, { useState } from 'react';
+import { Save, Check } from 'lucide-react';
 import GlossaryTerm from '../Glossary/GlossaryTerm';
 
-const SpinTextarea: React.FC<{ title: string; placeholder: string; initialValue: string }> = ({ title, placeholder, initialValue }) => {
+interface SpinTextareaProps {
+    title: string;
+    placeholder: string;
+    initialValue: string;
+}
+
+const SpinTextarea: React.FC<SpinTextareaProps> = ({ title, placeholder, initialValue }) => {
     const [value, setValue] = useState(initialValue);
+    const [saved, setSaved] = useState(false);
+
+    const handleSave = () => {
+        // Sauvegarder dans localStorage
+        const key = `spin-questions-${title.toLowerCase().replace(/\s+/g, '-')}`;
+        localStorage.setItem(key, value);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+    };
+
     return (
-        <div>
-            <h4 className="font-semibold text-lg text-slate-800 mb-2">{title}</h4>
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold text-lg text-slate-800">{title}</h4>
+                <button
+                    onClick={handleSave}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all ${
+                        saved
+                            ? 'bg-green-100 text-green-700 border-2 border-green-300'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                >
+                    {saved ? (
+                        <>
+                            <Check className="w-4 h-4" />
+                            Sauvegardé !
+                        </>
+                    ) : (
+                        <>
+                            <Save className="w-4 h-4" />
+                            Enregistrer
+                        </>
+                    )}
+                </button>
+            </div>
             <textarea
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
@@ -15,7 +54,7 @@ const SpinTextarea: React.FC<{ title: string; placeholder: string; initialValue:
                 className="w-full p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
             />
         </div>
-    )
+    );
 }
 
 const SpinGuideTab: React.FC = () => {
