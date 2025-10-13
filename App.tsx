@@ -18,7 +18,7 @@ import { UserProvider, useUser } from './contexts/UserContext';
 import GlossaryPanel from './components/Glossary/GlossaryPanel';
 import GlossaryTerm from './components/Glossary/GlossaryTerm';
 import { isTeacher } from './data/students';
-import { Users, Vote, Maximize2, Minimize2, Home, BookOpen, User as UserIcon, LogOut, ChevronDown, BarChart3 } from 'lucide-react';
+import { Users, Vote, Maximize2, Minimize2, Home, BookOpen, User as UserIcon, LogOut, ChevronDown, BarChart3, Info } from 'lucide-react';
 
 const AppContent: React.FC = () => {
   // TOUS les hooks doivent être déclarés EN PREMIER, avant tout return conditionnel
@@ -28,7 +28,7 @@ const AppContent: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showTeacherDashboard, setShowTeacherDashboard] = useState(false);
-  const [showLandingPage, setShowLandingPage] = useState(true);
+  const [showLandingPage, setShowLandingPage] = useState(false);
 
   const [deliverables, setDeliverables] = useState<Record<number, DeliverableContent>>(() =>
     SCENARIOS.reduce((acc, scenario) => {
@@ -155,6 +155,10 @@ const AppContent: React.FC = () => {
     setShowLandingPage(false);
   }, []);
 
+  const handleShowLandingPage = useCallback(() => {
+    setShowLandingPage(true);
+  }, []);
+
   const renderContent = useCallback(() => {
     switch (view) {
       case 'hub':
@@ -183,12 +187,12 @@ const AppContent: React.FC = () => {
   }, [view, handleModeSelect, handleShowWorkshops, handleCourseComplete, handleBackToHub, handleScenarioSelect, selectedScenario, currentDeliverables, handleDeliverableChange, deliverables, votes, handleVote]);
 
   // MAINTENANT on peut faire les returns conditionnels
-  // Show landing page first
-  if (showLandingPage && !isAuthenticated) {
+  // Show landing page if requested (works for both authenticated and non-authenticated users)
+  if (showLandingPage) {
     return <LandingPage onGetStarted={handleGetStarted} />;
   }
 
-  // Then show login
+  // Then show login if not authenticated
   if (!isAuthenticated) {
     return <LoginView onLogin={login} />;
   }
@@ -215,6 +219,15 @@ const AppContent: React.FC = () => {
               <span className="text-blue-600"><GlossaryTerm term="DAF">DAF</GlossaryTerm></span> {mode === 'morning' ? 'Formation' : 'Business Game'}
             </h1>
             <div className="flex items-center gap-2 sm:gap-4">
+              <button
+                onClick={handleShowLandingPage}
+                className="flex items-center px-3 sm:px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-xs sm:text-sm font-semibold min-h-[40px]"
+                title="Retour à la présentation"
+              >
+                <Info className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Présentation</span>
+              </button>
+
               <button
                 onClick={handleBackToHub}
                 className="flex items-center px-3 sm:px-4 py-2 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300 transition-colors text-xs sm:text-sm font-semibold min-h-[40px]"
