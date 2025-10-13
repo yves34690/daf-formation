@@ -228,3 +228,57 @@ export const clearAllUserData = (): void => {
 
   keysToRemove.forEach(key => localStorage.removeItem(key));
 };
+
+// Gestion des deliverables du Business Game
+export const saveDeliverable = (
+  userId: string,
+  scenarioId: number,
+  type: 'proposal' | 'specs',
+  content: string
+): void => {
+  try {
+    const key = `daf-deliverable-${userId}-${scenarioId}-${type}`;
+    localStorage.setItem(key, content);
+  } catch (error) {
+    console.error('Error saving deliverable:', error);
+  }
+};
+
+export const getDeliverable = (
+  userId: string,
+  scenarioId: number,
+  type: 'proposal' | 'specs'
+): string | null => {
+  try {
+    const key = `daf-deliverable-${userId}-${scenarioId}-${type}`;
+    return localStorage.getItem(key);
+  } catch (error) {
+    console.error('Error loading deliverable:', error);
+    return null;
+  }
+};
+
+export const getAllDeliverablesForUser = (userId: string): Record<number, { proposal: string; specs: string }> => {
+  const deliverables: Record<number, { proposal: string; specs: string }> = {};
+
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(`daf-deliverable-${userId}-`)) {
+        const parts = key.split('-');
+        const scenarioId = parseInt(parts[3]);
+        const type = parts[4] as 'proposal' | 'specs';
+        const content = localStorage.getItem(key) || '';
+
+        if (!deliverables[scenarioId]) {
+          deliverables[scenarioId] = { proposal: '', specs: '' };
+        }
+        deliverables[scenarioId][type] = content;
+      }
+    }
+  } catch (error) {
+    console.error('Error loading all deliverables:', error);
+  }
+
+  return deliverables;
+};

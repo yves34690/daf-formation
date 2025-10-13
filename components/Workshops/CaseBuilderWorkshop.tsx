@@ -30,6 +30,7 @@ import {
   deleteCaseFromLocalStorage
 } from '../../data/caseBuilderData';
 import GlossaryTerm from '../Glossary/GlossaryTerm';
+import { useUser } from '../../contexts/UserContext';
 
 interface CaseBuilderWorkshopProps {
   onComplete?: () => void;
@@ -39,6 +40,7 @@ interface CaseBuilderWorkshopProps {
 type WorkshopView = 'gallery' | 'templates' | 'builder' | 'preview';
 
 const CaseBuilderWorkshop: React.FC<CaseBuilderWorkshopProps> = ({ onComplete, onClose }) => {
+  const { currentUser } = useUser();
   const [view, setView] = useState<WorkshopView>('gallery');
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<CaseTemplate | null>(null);
@@ -48,9 +50,11 @@ const CaseBuilderWorkshop: React.FC<CaseBuilderWorkshopProps> = ({ onComplete, o
   const [validation, setValidation] = useState<{ isValid: boolean; errors: string[] }>({ isValid: true, errors: [] });
 
   useEffect(() => {
-    // Charger les cas sauvegardés
-    setSavedCases(getCasesFromLocalStorage());
-  }, []);
+    // Charger les cas sauvegardés pour l'utilisateur connecté
+    if (currentUser) {
+      setSavedCases(getCasesFromLocalStorage(currentUser.id));
+    }
+  }, [currentUser]);
 
   const startNewCase = () => {
     setView('templates');
@@ -121,14 +125,14 @@ const CaseBuilderWorkshop: React.FC<CaseBuilderWorkshopProps> = ({ onComplete, o
   };
 
   const saveCase = () => {
-    if (!previewCase) return;
+    if (!previewCase || !currentUser) return;
 
     const validationResult = validateCase(previewCase);
     setValidation(validationResult);
 
     if (validationResult.isValid) {
-      saveCaseToLocalStorage(previewCase);
-      setSavedCases(getCasesFromLocalStorage());
+      saveCaseToLocalStorage(previewCase, currentUser.id);
+      setSavedCases(getCasesFromLocalStorage(currentUser.id));
       setView('gallery');
       setFormData({});
       setCurrentStep(1);
@@ -138,8 +142,9 @@ const CaseBuilderWorkshop: React.FC<CaseBuilderWorkshopProps> = ({ onComplete, o
   };
 
   const deleteCase = (caseId: string) => {
-    deleteCaseFromLocalStorage(caseId);
-    setSavedCases(getCasesFromLocalStorage());
+    if (!currentUser) return;
+    deleteCaseFromLocalStorage(caseId, currentUser.id);
+    setSavedCases(getCasesFromLocalStorage(currentUser.id));
   };
 
   const exportCase = (studentCase: StudentCase) => {

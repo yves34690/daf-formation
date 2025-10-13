@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import type { Scenario, DeliverableContent, VoteCounts } from './types';
 import { SCENARIOS, PROPOSAL_TEMPLATE, SPECS_TEMPLATE } from './constants';
 import TeamSelection from './components/TeamSelection';
@@ -19,6 +19,7 @@ import GlossaryPanel from './components/Glossary/GlossaryPanel';
 import GlossaryTerm from './components/Glossary/GlossaryTerm';
 import { isTeacher } from './data/students';
 import { Users, Vote, Maximize2, Minimize2, Home, BookOpen, User as UserIcon, LogOut, ChevronDown, BarChart3, Info } from 'lucide-react';
+import { saveDeliverable, getAllDeliverablesForUser } from './utils/storage';
 
 const AppContent: React.FC = () => {
   // TOUS les hooks doivent être déclarés EN PREMIER, avant tout return conditionnel
@@ -50,6 +51,25 @@ const AppContent: React.FC = () => {
 
   // Vérifier si l'utilisateur connecté est un formateur
   const userIsTeacher = currentUser && isTeacher(currentUser);
+
+  // Charger les deliverables sauvegardés quand l'utilisateur se connecte
+  useEffect(() => {
+    if (currentUser) {
+      const savedDeliverables = getAllDeliverablesForUser(currentUser.id);
+      // Fusionner avec les templates par défaut
+      setDeliverables(prev => {
+        const merged = { ...prev };
+        Object.entries(savedDeliverables).forEach(([scenarioId, content]) => {
+          const id = parseInt(scenarioId);
+          merged[id] = {
+            proposal: content.proposal || prev[id]?.proposal || PROPOSAL_TEMPLATE,
+            specs: content.specs || prev[id]?.specs || SPECS_TEMPLATE
+          };
+        });
+        return merged;
+      });
+    }
+  }, [currentUser]);
 
   // Tous les useCallback et useMemo AVANT tout return conditionnel
   const handleScenarioSelect = useCallback((scenario: Scenario) => {
@@ -103,7 +123,12 @@ const AppContent: React.FC = () => {
         [type]: content,
       }
     }));
-  }, []);
+
+    // Sauvegarder dans localStorage
+    if (currentUser) {
+      saveDeliverable(currentUser.id, scenarioId, type, content);
+    }
+  }, [currentUser]);
 
   const handleVote = useCallback((scenarioId: number, type: 'proposal' | 'specs') => {
     setVotes(prev => ({

@@ -20,6 +20,7 @@ import {
   calculateScore
 } from '../../data/quizData';
 import GlossaryTerm from '../Glossary/GlossaryTerm';
+import { useWorkshopProgress } from '../../hooks/useWorkshopProgress';
 
 interface QuizWorkshopProps {
   onComplete?: () => void;
@@ -29,6 +30,7 @@ interface QuizWorkshopProps {
 type QuizState = 'intro' | 'playing' | 'results';
 
 const QuizWorkshop: React.FC<QuizWorkshopProps> = ({ onComplete, onClose }) => {
+  const { saveWorkshopScore, getLatestScore } = useWorkshopProgress();
   const [state, setState] = useState<QuizState>('intro');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -37,6 +39,15 @@ const QuizWorkshop: React.FC<QuizWorkshopProps> = ({ onComplete, onClose }) => {
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [questionStartTime, setQuestionStartTime] = useState<Date | null>(null);
+  const [previousBestScore, setPreviousBestScore] = useState<number | null>(null);
+
+  // Charger le meilleur score précédent
+  useEffect(() => {
+    const latestScore = getLatestScore('quiz-representations-metier');
+    if (latestScore && latestScore.score !== undefined) {
+      setPreviousBestScore(latestScore.score);
+    }
+  }, [getLatestScore]);
 
   const currentQuestion = QUIZ_QUESTIONS[currentQuestionIndex];
   const totalQuestions = QUIZ_QUESTIONS.length;
@@ -86,6 +97,21 @@ const QuizWorkshop: React.FC<QuizWorkshopProps> = ({ onComplete, onClose }) => {
       result.timeSpent = Math.floor((new Date().getTime() - startTime.getTime()) / 1000);
     }
     setQuizResult(result);
+
+    // Sauvegarder le score
+    saveWorkshopScore('quiz-representations-metier', result.percentage, {
+      score: result.score,
+      totalQuestions: result.totalQuestions,
+      percentage: result.percentage,
+      categoryScores: result.categoryScores,
+      timeSpent: result.timeSpent
+    });
+
+    // Mettre à jour le meilleur score si c'est mieux
+    if (previousBestScore === null || result.percentage > previousBestScore) {
+      setPreviousBestScore(result.percentage);
+    }
+
     setState('results');
   };
 
@@ -384,6 +410,12 @@ const QuizWorkshop: React.FC<QuizWorkshopProps> = ({ onComplete, onClose }) => {
               {badge.icon}
               <span className="font-semibold">{badge.text}</span>
             </div>
+            {previousBestScore !== null && quizResult.percentage > previousBestScore && (
+              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm font-semibold">
+                <Trophy className="w-4 h-4" />
+                Nouveau record personnel ! (ancien: {previousBestScore}%)
+              </div>
+            )}
           </div>
 
           {/* Scores par catégorie */}

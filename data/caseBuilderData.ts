@@ -24,7 +24,7 @@ export interface StudentCase {
   };
   dafPerspective: {
     concerns: string[];
-    questions: string[];
+    questions: string;
   };
 }
 
@@ -324,7 +324,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
         helpText: 'Choisissez la catégorie qui correspond le mieux'
       },
       {
-        id: 'context',
+        id: 'challenge.context',
         label: 'Contexte de l\'entreprise',
         type: 'textarea',
         placeholder: 'Ex: PME de 45 employés dans la restauration rapide avec 4 points de vente...',
@@ -332,7 +332,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
         helpText: 'Décrivez l\'entreprise : taille, secteur, organisation actuelle'
       },
       {
-        id: 'problem',
+        id: 'challenge.problem',
         label: 'Problème principal',
         type: 'textarea',
         placeholder: 'Ex: La gestion manuelle des horaires variables génère des erreurs de paie récurrentes...',
@@ -340,7 +340,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
         helpText: 'Quel est le problème concret que vous voulez résoudre ?'
       },
       {
-        id: 'impact',
+        id: 'challenge.impact',
         label: 'Impact du problème',
         type: 'textarea',
         placeholder: 'Ex: 5h/semaine perdues, réclamations clients, stress des équipes...',
@@ -355,7 +355,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
     description: 'Détaillez votre approche et les outils envisagés',
     fields: [
       {
-        id: 'approach',
+        id: 'solution.approach',
         label: 'Approche générale',
         type: 'textarea',
         placeholder: 'Ex: Implémenter une solution SaaS de gestion RH avec application mobile...',
@@ -363,7 +363,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
         helpText: 'Comment comptez-vous résoudre le problème ?'
       },
       {
-        id: 'tools',
+        id: 'solution.tools',
         label: 'Outils/Technologies',
         type: 'multiselect',
         options: ['SaaS', 'Application mobile', 'IA/Machine Learning', 'RPA', 'API/Intégrations', 'Cloud', 'Power BI', 'ERP', 'CRM', 'Workflows', 'Autre'],
@@ -371,7 +371,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
         helpText: 'Quels types d\'outils allez-vous utiliser ?'
       },
       {
-        id: 'implementation',
+        id: 'solution.implementation',
         label: 'Plan de mise en œuvre',
         type: 'textarea',
         placeholder: 'Ex: Phase 1: Formation équipes (2 semaines), Phase 2: Migration données (1 mois)...',
@@ -386,7 +386,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
     description: 'Quantifiez les bénéfices et le ROI de votre solution',
     fields: [
       {
-        id: 'measurableROI',
+        id: 'results.measurableROI',
         label: 'ROI mesurable',
         type: 'textarea',
         placeholder: 'Ex: Économie de 300€/mois, ROI positif en 12 mois, réduction de 50% des erreurs...',
@@ -394,7 +394,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
         helpText: 'Donnez des chiffres concrets et vérifiables'
       },
       {
-        id: 'timeGains',
+        id: 'results.timeGains',
         label: 'Gains de temps',
         type: 'textarea',
         placeholder: 'Ex: 5h/semaine économisées, réduction de 70% du temps de traitement...',
@@ -402,7 +402,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
         helpText: 'Quantifiez les gains de temps pour les équipes'
       },
       {
-        id: 'otherBenefits',
+        id: 'results.otherBenefits',
         label: 'Autres bénéfices',
         type: 'multiselect',
         options: ['Amélioration qualité', 'Satisfaction client', 'Motivation équipes', 'Conformité réglementaire', 'Sécurité des données', 'Évolutivité', 'Autre'],
@@ -417,7 +417,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
     description: 'Anticipez les questions et préoccupations du DAF',
     fields: [
       {
-        id: 'concerns',
+        id: 'dafPerspective.concerns',
         label: 'Préoccupations du DAF',
         type: 'multiselect',
         options: [
@@ -436,7 +436,7 @@ export const CASE_BUILDING_STEPS: CaseBuildingStep[] = [
         helpText: 'Quelles seront les principales inquiétudes du DAF ?'
       },
       {
-        id: 'questions',
+        id: 'dafPerspective.questions',
         label: 'Questions types du DAF',
         type: 'textarea',
         placeholder: 'Ex: "Quel est le coût de formation ?", "Que se passe-t-il si le fournisseur fait faillite ?"...',
@@ -488,19 +488,19 @@ export const generateCaseId = (): string => {
   return `case_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
-export const saveCaseToLocalStorage = (studentCase: StudentCase): void => {
+export const saveCaseToLocalStorage = (studentCase: StudentCase, userId: string): void => {
   try {
-    const existingCases = getCasesFromLocalStorage();
+    const existingCases = getCasesFromLocalStorage(userId);
     const updatedCases = [...existingCases, studentCase];
-    localStorage.setItem('daf_student_cases', JSON.stringify(updatedCases));
+    localStorage.setItem(`daf_student_cases-${userId}`, JSON.stringify(updatedCases));
   } catch (error) {
     console.error('Erreur lors de la sauvegarde du cas:', error);
   }
 };
 
-export const getCasesFromLocalStorage = (): StudentCase[] => {
+export const getCasesFromLocalStorage = (userId: string): StudentCase[] => {
   try {
-    const cases = localStorage.getItem('daf_student_cases');
+    const cases = localStorage.getItem(`daf_student_cases-${userId}`);
     return cases ? JSON.parse(cases) : [];
   } catch (error) {
     console.error('Erreur lors de la récupération des cas:', error);
@@ -508,11 +508,11 @@ export const getCasesFromLocalStorage = (): StudentCase[] => {
   }
 };
 
-export const deleteCaseFromLocalStorage = (caseId: string): void => {
+export const deleteCaseFromLocalStorage = (caseId: string, userId: string): void => {
   try {
-    const existingCases = getCasesFromLocalStorage();
+    const existingCases = getCasesFromLocalStorage(userId);
     const updatedCases = existingCases.filter(c => c.id !== caseId);
-    localStorage.setItem('daf_student_cases', JSON.stringify(updatedCases));
+    localStorage.setItem(`daf_student_cases-${userId}`, JSON.stringify(updatedCases));
   } catch (error) {
     console.error('Erreur lors de la suppression du cas:', error);
   }
